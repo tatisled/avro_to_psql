@@ -1,0 +1,109 @@
+The module beam_jobs_for_gcp contains several jobs to run directly or or run by DataflowRunner in google cloud platform.
+
+Jobs:
+        1. AvroToBQ
+
+The job is aim to read avro file from gcp storage, apply some transformation due to apache calcite driver and write the complete result to the
+target gcp Big Query table.
+
+To run this job directly use following argument:
+--runner=DirectRunner
+--project=graphite-hook-314808
+--stagingLocation=gs://onboarding-bucket-1/staging
+--region=us-central1
+--appName=AvroToBQCalcite
+--gcsTempLocation=gs://onboarding-bucket-1/tmp
+--bqTable=graphite-hook-314808:bq_dataset.bq_table_with_transform
+--inputPath=gs://onboarding-bucket-1/avro_dataset.avro
+
+To run this job by gcp DataflowRunner use following arguments:
+--runner=DataflowRunner
+--project=graphite-hook-314808
+--stagingLocation=gs://onboarding-bucket-1/staging
+--region=us-central1
+--appName=AvroToBQCalcite
+--gcsTempLocation=gs://onboarding-bucket-1/tmp
+--bqTable=graphite-hook-314808:bq_dataset.bq_table_with_transform
+--inputPath=gs://onboarding-bucket-1/avro_dataset.avro
+
+To create Dataflow template for this job use following terminal command:
+mvn compile exec:java \
+     -Dexec.mainClass=com.github.tatisled.AvroToBQ \
+     -Dexec.cleanupDaemonThreads=false \
+     -Dexec.args="--runner=DataflowRunner \
+                  --project=graphite-hook-314808 \
+                  --stagingLocation=gs://onboarding-bucket-1/staging \
+                  --region=us-central1 \
+                  --appName=AvroToBQCalcite \
+                  --gcsTempLocation=gs://onboarding-bucket-1/tmp \
+                  --templateLocation=gs://onboarding-bucket-1/custom_templates/avro_to_bq_with_calcite_template.json"
+
+        2. AvroToPsql
+
+The job is aim to read avro file from gcp storage and write data as is into Postgres instance of gcp.
+
+To run this job directly use following argument:
+--runner=direct
+--project=graphite-hook-314808
+--stagingLocation=gs://onboarding-bucket-1/staging
+--region=us-central1
+--appName=AvroToPsql
+--tempLocation=gs://onboarding-bucket-1/tmp
+--inputPath=gs://onboarding-bucket-1/avro_dataset.avro
+
+To run this job by gcp DataflowRunner use following arguments:
+--runner=DataflowRunner
+--project=graphite-hook-314808
+--stagingLocation=gs://onboarding-bucket-1/staging
+--region=us-central1
+--appName=AvroToPsql
+--tempLocation=gs://onboarding-bucket-1/tmp
+--inputPath=gs://onboarding-bucket-1/avro_dataset.avro
+
+To create Dataflow template for this job use following terminal command:
+mvn compile exec:java \
+     -Dexec.mainClass=com.github.tatisled.AvroToPsql \
+     -Dexec.cleanupDaemonThreads=false \
+     -Dexec.args="--runner=DataflowRunner \
+                  --project=graphite-hook-314808 \
+                  --stagingLocation=gs://onboarding-bucket-1/staging \
+                  --region=us-central1 \
+                  --appName=AvroToPsql \
+                  --tempLocation=gs://onboarding-bucket-1/tmp \
+                  --templateLocation=gs://onboarding-bucket-1/custom_templates/avro_to_psql_template.json"
+
+        3. PsqlToAvro
+
+The job is aim to read data from Postgres instance of gcp and write it as is into avro file in gcp storage.
+
+To run this job directly use following argument:
+--runner=DirectRunner
+--project=graphite-hook-314808
+--stagingLocation=gs://onboarding-bucket-1/staging
+--region=us-central1
+--appName=PsqlToAvro
+--tempLocation=gs://onboarding-bucket-1/tmp
+--avroFileName=avro_output
+--bucketName=gs://onboarding-bucket-2
+
+To run this job by gcp DataflowRunner use following arguments:
+--runner=DataflowRunner
+--project=graphite-hook-314808
+--stagingLocation=gs://onboarding-bucket-1/staging
+--region=us-central1
+--appName=PsqlToAvro
+--tempLocation=gs://onboarding-bucket-1/tmp
+--avroFileName=avro_output
+--bucketName=gs://onboarding-bucket-2
+
+To create Dataflow template for this job use following terminal command:
+mvn compile exec:java \
+     -Dexec.mainClass=com.github.tatisled.PsqlToAvro \
+     -Dexec.cleanupDaemonThreads=false \
+     -Dexec.args="--runner=DataflowRunner \
+                  --project=graphite-hook-314808 \
+                  --stagingLocation=gs://onboarding-bucket-1/staging \
+                  --region=us-central1 \
+                  --appName=PsqlToAvro \
+                  --tempLocation=gs://onboarding-bucket-1/tmp \
+                  --templateLocation=gs://onboarding-bucket-1/custom_templates/psql_to_avro_template.json"
