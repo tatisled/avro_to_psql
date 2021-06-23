@@ -1,2 +1,5 @@
 /.idea
 /target
+/nodejs/cloud_functions/*/node_modules
+/nodejs/cloud_functions/*/.idea
+/nodejs/cloud_functions/*/package-lock.json

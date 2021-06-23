@@ -1,6 +1,6 @@
-package com.github.tatisled;
+package com.github.tatisled.phase2;
 
-import com.github.tatisled.util.AvroUtils;
+import com.github.tatisled.common.util.SchemaConverter;
 import com.google.api.services.bigquery.model.TableSchema;
 import org.apache.avro.generic.GenericRecord;
 import org.apache.avro.util.Utf8;
@@ -19,7 +19,6 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Objects;
 
-import static com.github.tatisled.util.AvroUtils.getAvroSchema;
 import static org.apache.beam.sdk.io.gcp.bigquery.BigQueryIO.Write.CreateDisposition.CREATE_IF_NEEDED;
 import static org.apache.beam.sdk.io.gcp.bigquery.BigQueryIO.Write.WriteDisposition.WRITE_APPEND;
 
@@ -27,9 +26,9 @@ public class AvroToBQ {
 
     private static final Logger LOG = LoggerFactory.getLogger(AvroToBQ.class);
 
-    public static final org.apache.avro.Schema AVRO_SCHEMA = getAvroSchema();
-    public static final Schema SCHEMA = AvroUtils.getSchemaFromAvroSchema(AVRO_SCHEMA);
-    public static final TableSchema TABLE_SCHEMA = AvroUtils.getTableSchema(SCHEMA);
+    public static final org.apache.avro.Schema AVRO_SCHEMA = SchemaConverter.getAvroSchemaFromGsp();
+    public static final Schema SCHEMA = SchemaConverter.getSchema(AVRO_SCHEMA);
+    public static final TableSchema TABLE_SCHEMA = SchemaConverter.getTableSchema(SCHEMA);
 
     public interface AvroToBqOptions extends DataflowPipelineOptions {
         @Description("Input path")
@@ -58,8 +57,9 @@ public class AvroToBQ {
     public static class RowParDo extends DoFn<GenericRecord, Row> {
         @ProcessElement
         public void processElement(ProcessContext c) {
-            Row.Builder appRowBuilder = Row.withSchema(SCHEMA);
-            SCHEMA.getFieldNames().forEach(fieldName -> {
+            Schema schema = SchemaConverter.getSchema(c.element().getSchema());
+            Row.Builder appRowBuilder = Row.withSchema(schema);
+            schema.getFieldNames().forEach(fieldName -> {
                         if (Objects.requireNonNull(c.element()).get(fieldName) instanceof Utf8) {
                             appRowBuilder.addValues(Objects.requireNonNull(c.element()).get(fieldName).toString());
                         } else {
@@ -72,7 +72,7 @@ public class AvroToBQ {
         }
     }
 
-        private static SqlTransform getSqlQuery(TableSchema tableSchema) {
+    private static SqlTransform getSqlQuery(TableSchema tableSchema) {
 //        StringBuilder sbSelect = new StringBuilder();
 //        StringBuilder sbGroupBy = new StringBuilder();
 //
@@ -95,38 +95,38 @@ public class AvroToBQ {
 
 //        String query = String.format("SELECT %s FROM PCOLLECTION GROUP BY (%s)", sbSelect.toString(), sbGroupBy.toString());
 
-            //todo 08.06.2021 add any sql transformation if needed (group by is checked) but keep schema as avro schema
-            String query = "SELECT * FROM PCOLLECTION";
-            return SqlTransform.query(query);
-        }
-
-        protected void run(AvroToBqOptions options) {
-            Pipeline pipeline = Pipeline.create(options);
-
-            pipeline.apply("Read Avro from DataStorage", AvroIO.readGenericRecords(AVRO_SCHEMA)
-                    .from(options.getInputPath()))
-                    .apply("Transform data to Row", ParDo.of(new RowParDo())).setRowSchema(SCHEMA)
-                    .apply("Transform Row due to SQL query", getSqlQuery(TABLE_SCHEMA))
-                    .apply("Write to BigQuery", BigQueryIO.<Row>write()
-                            .to(options.getBqTable())
-                            .withSchema(TABLE_SCHEMA)
-                            .withWriteDisposition(WRITE_APPEND)
-                            .withCreateDisposition(CREATE_IF_NEEDED)
-                            .withFormatFunction(row -> AvroUtils.convertRecordToTableRow(
-                                    row
-                                    , AvroUtils.getTableSchema(SCHEMA)
-                            ))
-                            .withCustomGcsTempLocation(options.getGcsTempLocation())
-                    );
-            //https://stackoverflow.com/questions/67606930/i-am-getting-this-error-getting-severe-channel-managedchannelimpllogid-1-targe
-            pipeline.run().waitUntilFinish();
-        }
-
-        public static void main(String[] args) {
-            AvroToBqOptions options =
-                    PipelineOptionsFactory.fromArgs(args).withValidation().as(AvroToBqOptions.class);
-
-            new AvroToBQ().run(options);
-        }
-
+        //todo 08.06.2021 add any sql transformation if needed (group by is checked) but keep schema as avro schema
+        String query = "SELECT * FROM PCOLLECTION";
+        return SqlTransform.query(query);
     }
+
+    protected void run(AvroToBqOptions options) {
+        Pipeline pipeline = Pipeline.create(options);
+
+        pipeline.apply("Read Avro from DataStorage", AvroIO.readGenericRecords(AVRO_SCHEMA)
+                .from(options.getInputPath()))
+                .apply("Transform data to Row", ParDo.of(new RowParDo())).setRowSchema(SCHEMA)
+                .apply("Transform Row due to SQL query", getSqlQuery(TABLE_SCHEMA))
+                .apply("Write to BigQuery", BigQueryIO.<Row>write()
+                        .to(options.getBqTable())
+                        .withSchema(TABLE_SCHEMA)
+                        .withWriteDisposition(WRITE_APPEND)
+                        .withCreateDisposition(CREATE_IF_NEEDED)
+                        .withFormatFunction(row -> SchemaConverter.convertRowToTableRow(
+                                row
+                                , SchemaConverter.getTableSchema(SCHEMA)
+                        ))
+                        .withCustomGcsTempLocation(options.getGcsTempLocation())
+                );
+        //https://stackoverflow.com/questions/67606930/i-am-getting-this-error-getting-severe-channel-managedchannelimpllogid-1-targe
+        pipeline.run().waitUntilFinish();
+    }
+
+    public static void main(String[] args) {
+        AvroToBqOptions options =
+                PipelineOptionsFactory.fromArgs(args).withValidation().as(AvroToBqOptions.class);
+
+        new AvroToBQ().run(options);
+    }
+
+}

@@ -1,6 +1,6 @@
-package com.github.tatisled;
+package com.github.tatisled.phase2;
 
-import com.github.tatisled.config.ConnectionConfig;
+import com.github.tatisled.common.config.ConnectionConfig;
 import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericData;
 import org.apache.avro.generic.GenericRecord;
@@ -9,17 +9,14 @@ import org.apache.beam.sdk.Pipeline;
 import org.apache.beam.sdk.coders.AvroGenericCoder;
 import org.apache.beam.sdk.io.AvroIO;
 import org.apache.beam.sdk.io.jdbc.JdbcIO;
-import org.apache.beam.sdk.options.Description;
-import org.apache.beam.sdk.options.PipelineOptionsFactory;
-import org.apache.beam.sdk.options.Validation;
-import org.apache.beam.sdk.options.ValueProvider;
+import org.apache.beam.sdk.options.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.beans.PropertyVetoException;
 import java.util.Objects;
 
-import static com.github.tatisled.util.AvroUtils.getAvroSchema;
+import static com.github.tatisled.common.util.SchemaConverter.getAvroSchemaFromResource;
 
 public class PsqlToAvro {
 
@@ -47,8 +44,10 @@ public class PsqlToAvro {
 
         JdbcIO.DataSourceConfiguration config = JdbcIO.DataSourceConfiguration.create(ConnectionConfig.getConnectionConfig());
 
-        final Schema schema = getAvroSchema();
+        final Schema schema = getAvroSchemaFromResource();
         final String schemaStr = Objects.requireNonNull(schema).toString();
+        final String fileName = options.getAvroFileName().isAccessible() ? options.getAvroFileName().get() : "avro_file_name";
+
         Pipeline pipeline = Pipeline.create(options);
 
         pipeline.apply("Read from Postgres table", JdbcIO.<GenericRecord>read()
@@ -71,10 +70,10 @@ public class PsqlToAvro {
         )
                 .apply("Write to Avro file", AvroIO.writeGenericRecords(schema)
                         .to(options.getBucketName())
-                        .withShardNameTemplate(options.getAvroFileName().get())
+                        .withShardNameTemplate(fileName)
                         .withSuffix(".avro")
                         .withNumShards(1));
 
-        pipeline.run().waitUntilFinish();
+        pipeline.run();
     }
 }

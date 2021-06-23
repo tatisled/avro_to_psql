@@ -28,7 +28,7 @@ To run this job by gcp DataflowRunner use following arguments:
 
 To create Dataflow template for this job use following terminal command:
 mvn compile exec:java \
-     -Dexec.mainClass=com.github.tatisled.AvroToBQ \
+     -Dexec.mainClass=com.github.tatisled.phase2.AvroToBQ \
      -Dexec.cleanupDaemonThreads=false \
      -Dexec.args="--runner=DataflowRunner \
                   --project=graphite-hook-314808 \
@@ -62,7 +62,7 @@ To run this job by gcp DataflowRunner use following arguments:
 
 To create Dataflow template for this job use following terminal command:
 mvn compile exec:java \
-     -Dexec.mainClass=com.github.tatisled.AvroToPsql \
+     -Dexec.mainClass=com.github.tatisled.phase2.AvroToPsql \
      -Dexec.cleanupDaemonThreads=false \
      -Dexec.args="--runner=DataflowRunner \
                   --project=graphite-hook-314808 \
@@ -98,7 +98,7 @@ To run this job by gcp DataflowRunner use following arguments:
 
 To create Dataflow template for this job use following terminal command:
 mvn compile exec:java \
-     -Dexec.mainClass=com.github.tatisled.PsqlToAvro \
+     -Dexec.mainClass=com.github.tatisled.phase2.PsqlToAvro \
      -Dexec.cleanupDaemonThreads=false \
      -Dexec.args="--runner=DataflowRunner \
                   --project=graphite-hook-314808 \
@@ -107,3 +107,19 @@ mvn compile exec:java \
                   --appName=PsqlToAvro \
                   --tempLocation=gs://onboarding-bucket-1/tmp \
                   --templateLocation=gs://onboarding-bucket-1/custom_templates/psql_to_avro_template.json"
+
+gcloud alpha monitoring policies create --policy-from-file="alertpolicy/metric_threshold_policy.json"
+
+        4. PubSubToBQ
+To create Dataflow template for this job use following terminal command:
+mvn compile exec:java \
+     -Dexec.mainClass=com.github.tatisled.phase5.PubSubToBQ \
+     -Dexec.cleanupDaemonThreads=false \
+     -Dexec.args="--runner=DataflowRunner \
+                  --project=graphite-hook-314808 \
+                  --stagingLocation=gs://onboarding-bucket-1/staging \
+                  --region=us-central1 \
+                  --appName=PubSubToBq-1234 \
+                  --tempLocation=gs://onboarding-bucket-1/tmp \
+                  --templateLocation=gs://onboarding-bucket-1/custom_templates/pubsub_to_bq_template.json"
+

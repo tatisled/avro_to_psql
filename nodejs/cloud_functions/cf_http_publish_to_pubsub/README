@@ -1,0 +1,10 @@
+gcloud functions deploy publishMessage --trigger-http --runtime nodejs14
+
+gcloud functions call publish --data '{"topic":"jobs_to_run_topic","message":
+{"template":"gs://onboarding-bucket-1/custom_templates/new_template_from_maven.json",
+ "jobName":"pushMessageToTopic",
+ "parameters":{
+     "region":"us-central1",
+     "inputPath":"gs://onboarding-bucket-1/avro_dataset.avro",
+     "bqTable":"graphite-hook-314808:bq_dataset.bq_table_from_avro"}
+}'

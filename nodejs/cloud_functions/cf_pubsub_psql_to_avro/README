@@ -1,0 +1,1 @@
+gcloud functions deploy onGettingMessageCallHttp --trigger-topic jobs_to_run_topic --runtime nodejs14

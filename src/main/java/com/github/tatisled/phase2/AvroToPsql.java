@@ -1,7 +1,6 @@
-package com.github.tatisled;
+package com.github.tatisled.phase2;
 
-import com.github.tatisled.config.ConnectionConfig;
-import com.google.common.collect.ImmutableMap;
+import com.github.tatisled.common.config.ConnectionConfig;
 import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericRecord;
 import org.apache.beam.runners.dataflow.options.DataflowPipelineOptions;
@@ -13,43 +12,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.beans.PropertyVetoException;
-import java.sql.Types;
 import java.util.Objects;
 
-import static com.github.tatisled.util.AvroUtils.getAvroSchema;
+import static com.github.tatisled.common.util.Mapper.AvroSQLMapper.AVRO_TO_SQL_TYPES;
+import static com.github.tatisled.common.util.SchemaConverter.getAvroSchemaFromResource;
 
 public class AvroToPsql {
 
     private static final Logger LOG = LoggerFactory.getLogger(AvroToPsql.class);
 
-    private static final ImmutableMap<Schema.Type, SqlTypeWithName> typesMap = ImmutableMap.<Schema.Type, SqlTypeWithName>builder()
-            .put(Schema.Type.LONG, new SqlTypeWithName(Types.BIGINT, "BIGINT"))
-            .put(Schema.Type.STRING, new SqlTypeWithName(Types.VARCHAR, "VARCHAR"))
-            .put(Schema.Type.INT, new SqlTypeWithName(Types.INTEGER, "INTEGER"))
-            .put(Schema.Type.DOUBLE, new SqlTypeWithName(Types.DOUBLE, "DOUBLE PRECISION"))
-            .build();
-
     private static final String CREATE_TABLE_QUERY = "CREATE TABLE IF NOT EXISTS test_table (%s)";
-    private static final String INSERT_QUERY = "INSERT INTO test_table VALUES (%s)";
-
-    static class SqlTypeWithName {
-        int typeCode;
-        String typeName;
-
-        SqlTypeWithName(int type, String name) {
-            this.typeCode = type;
-            this.typeName = name;
-        }
-
-        public int getTypeCode() {
-            return typeCode;
-        }
-
-        public String getTypeName() {
-            return typeName;
-        }
-
-    }
+    private static final String INSERT_QUERY = "INSERT INTO test_dataset VALUES (%s)";
 
     public interface AvroToPsqlOptions extends PipelineOptions, DataflowPipelineOptions {
         @Description("Input path")
@@ -95,7 +68,7 @@ public class AvroToPsql {
         while (counter < totalFields) {
             Schema.Field currField = schema.getFields().get(counter);
             Schema.Type currType = currField.schema().getTypes().get(0).getType();
-            query.setObject(counter + 1, row.get(currField.name()), typesMap.get(currType).getTypeCode());
+            query.setObject(counter + 1, row.get(currField.name()), AVRO_TO_SQL_TYPES.get(currType).getTypeCode());
             counter++;
         }
     };
@@ -105,16 +78,15 @@ public class AvroToPsql {
 
         JdbcIO.DataSourceConfiguration config = JdbcIO.DataSourceConfiguration.create(ConnectionConfig.getConnectionConfig());
 
-        Schema schema = getAvroSchema();
+        Schema schema = getAvroSchemaFromResource();
 
-        pipeline
-                .apply("Read Avro from DataStorage", AvroIO.readGenericRecords(schema)
+        pipeline.apply("Read Avro from DataStorage", AvroIO.readGenericRecords(schema)
                         .from(options.getInputPath()))
                 .apply(JdbcIO.<GenericRecord>write()
-                                .withDataSourceConfiguration(config)
-//                                .withStatement(getColumnsWithTypes(schema))
-                                .withStatement(getQueryParams(schema))
-                                .withPreparedStatementSetter(rowParser)
+                        .withDataSourceConfiguration(config)
+//                        .withStatement(getColumnsWithTypes(schema))
+                        .withStatement(getQueryParams(schema))
+                        .withPreparedStatementSetter(rowParser)
                 );
 
         pipeline.run().waitUntilFinish();

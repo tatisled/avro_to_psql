@@ -1,4 +1,4 @@
-package com.github.tatisled.config;
+package com.github.tatisled.common.config;
 
 import com.mchange.v2.c3p0.ComboPooledDataSource;
 

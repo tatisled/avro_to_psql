@@ -1,0 +1,30 @@
+{
+  "displayName": "Approach 2k limit of Big Query writes",
+  "combiner": "OR",
+  "conditions": [
+    {
+      "displayName": "2k rows are approached",
+      "conditionThreshold": {
+        "aggregations": [
+          {
+            "alignmentPeriod": "60s",
+            "crossSeriesReducer": "REDUCE_MEAN",
+            "groupByFields": [
+              "project",
+              "resource.label.instance_id",
+              "resource.label.zone"
+            ],
+            "perSeriesAligner": "ALIGN_MAX"
+          }
+        ],
+        "comparison": "COMPARISON_GT",
+        "duration": "900s",
+        "filter": "metric.type=\"custom.googleapis.com/dataflow/counter1\" AND resource.type=\"dataflow_job\"",
+        "thresholdValue": 2000,
+        "trigger": {
+          "count": 1
+        }
+      }
+    }
+  ]
+}

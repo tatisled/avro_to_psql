@@ -1,0 +1,5 @@
+To load cf to gcp run in cmd:
+gcloud functions deploy autoAvroToBqFunc \
+--runtime nodejs14 \
+--trigger-resource gs://onboarding-bucket-2 \
+--trigger-event google.storage.object.finalize

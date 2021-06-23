@@ -1,0 +1,7 @@
+{
+  "name": "cf_http_avro_to_bq",
+  "version": "1.0.0",
+  "dependencies": {
+    "googleapis": "^74.2.0"
+  }
+}
