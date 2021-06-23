@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.github.tatisled</groupId>
-    <artifactId>avro_to_psql</artifactId>
+    <artifactId>gcp_training</artifactId>
     <version>1.0</version>
 
     <properties>
