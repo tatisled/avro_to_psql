@@ -3,3 +3,6 @@
 /nodejs/cloud_functions/*/node_modules
 /nodejs/cloud_functions/*/.idea
 /nodejs/cloud_functions/*/package-lock.json
+/nodejs/pubsub_publisher/node_modules
+/nodejs/pubsub_publisher/.idea
+/nodejs/pubsub_publisher/package-lock.json
