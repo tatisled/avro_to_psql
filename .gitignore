@@ -6,3 +6,5 @@
 /nodejs/pubsub_publisher/node_modules
 /nodejs/pubsub_publisher/.idea
 /nodejs/pubsub_publisher/package-lock.json
+/phase4/.*
+/phase4/terraform.*

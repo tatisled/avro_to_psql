@@ -83,6 +83,74 @@ public class PubSubTest {
         PubSubTest.PubSubToBQOptions options = PipelineOptionsFactory.fromArgs(args).withValidation().as(PubSubTest.PubSubToBQOptions.class);
 
         PubSubTest.run(options);
+
+        String str = "{\n" +
+                "  \"type\" : \"record\",\n" +
+                "  \"name\" : \"topLevelRecord\",\n" +
+                "  \"fields\" : [ {\n" +
+                "    \"name\" : \"id\",\n" +
+                "    \"type\" : [ \"long\", \"null\" ]\n" +
+                "  }, {\n" +
+                "    \"name\" : \"date_time\",\n" +
+                "    \"type\" : [ \"string\", \"null\" ]\n" +
+                "  }, {\n" +
+                "    \"name\" : \"site_name\",\n" +
+                "    \"type\" : [ \"int\", \"null\" ]\n" +
+                "  }, {\n" +
+                "    \"name\" : \"posa_continent\",\n" +
+                "    \"type\" : [ \"int\", \"null\" ]\n" +
+                "  }, {\n" +
+                "    \"name\" : \"user_location_country\",\n" +
+                "    \"type\" : [ \"int\", \"null\" ]\n" +
+                "  }, {\n" +
+                "    \"name\" : \"user_location_region\",\n" +
+                "    \"type\" : [ \"int\", \"null\" ]\n" +
+                "  }, {\n" +
+                "    \"name\" : \"user_location_city\",\n" +
+                "    \"type\" : [ \"int\", \"null\" ]\n" +
+                "  }, {\n" +
+                "    \"name\" : \"orig_destination_distance\",\n" +
+                "    \"type\" : [ \"double\", \"null\" ]\n" +
+                "  }, {\n" +
+                "    \"name\" : \"user_id\",\n" +
+                "    \"type\" : [ \"int\", \"null\" ]\n" +
+                "  }, {\n" +
+                "    \"name\" : \"is_mobile\",\n" +
+                "    \"type\" : [ \"int\", \"null\" ]\n" +
+                "  }, {\n" +
+                "    \"name\" : \"is_package\",\n" +
+                "    \"type\" : [ \"int\", \"null\" ]\n" +
+                "  }, {\n" +
+                "    \"name\" : \"channel\",\n" +
+                "    \"type\" : [ \"int\", \"null\" ]\n" +
+                "  }, {\n" +
+                "    \"name\" : \"srch_ci\",\n" +
+                "    \"type\" : [ \"string\", \"null\" ]\n" +
+                "  }, {\n" +
+                "    \"name\" : \"srch_co\",\n" +
+                "    \"type\" : [ \"string\", \"null\" ]\n" +
+                "  }, {\n" +
+                "    \"name\" : \"srch_adults_cnt\",\n" +
+                "    \"type\" : [ \"int\", \"null\" ]\n" +
+                "  }, {\n" +
+                "    \"name\" : \"srch_children_cnt\",\n" +
+                "    \"type\" : [ \"int\", \"null\" ]\n" +
+                "  }, {\n" +
+                "    \"name\" : \"srch_rm_cnt\",\n" +
+                "    \"type\" : [ \"int\", \"null\" ]\n" +
+                "  }, {\n" +
+                "    \"name\" : \"srch_destination_id\",\n" +
+                "    \"type\" : [ \"int\", \"null\" ]\n" +
+                "  }, {\n" +
+                "    \"name\" : \"srch_destination_type_id\",\n" +
+                "    \"type\" : [ \"int\", \"null\" ]\n" +
+                "  }, {\n" +
+                "    \"name\" : \"hotel_id\",\n" +
+                "    \"type\" : [ \"long\", \"null\" ]\n" +
+                "  } ]\n" +
+                "}";
+
+
     }
 }
 

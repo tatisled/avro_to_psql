@@ -1,4 +1,4 @@
-gcloud functions deploy publishMessage --trigger-http --runtime nodejs14
+gcloud functions deploy publishMessage --trigger-http --runtime nodejs14 --allow-unauthenticated
 
 gcloud functions call publish --data '{"topic":"jobs_to_run_topic","message":
 {"template":"gs://onboarding-bucket-1/custom_templates/new_template_from_maven.json",

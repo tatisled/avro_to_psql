@@ -1,6 +1,7 @@
 package com.github.tatisled.phase2;
 
 import com.github.tatisled.common.config.ConnectionConfig;
+import com.github.tatisled.common.util.DownloadGcpObject;
 import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericRecord;
 import org.apache.beam.runners.dataflow.options.DataflowPipelineOptions;
@@ -15,14 +16,13 @@ import java.beans.PropertyVetoException;
 import java.util.Objects;
 
 import static com.github.tatisled.common.util.Mapper.AvroSQLMapper.AVRO_TO_SQL_TYPES;
-import static com.github.tatisled.common.util.SchemaConverter.getAvroSchemaFromResource;
 
 public class AvroToPsql {
 
     private static final Logger LOG = LoggerFactory.getLogger(AvroToPsql.class);
 
     private static final String CREATE_TABLE_QUERY = "CREATE TABLE IF NOT EXISTS test_table (%s)";
-    private static final String INSERT_QUERY = "INSERT INTO test_dataset VALUES (%s)";
+    private static final String INSERT_QUERY = "INSERT INTO test_table VALUES (%s)";
 
     public interface AvroToPsqlOptions extends PipelineOptions, DataflowPipelineOptions {
         @Description("Input path")
@@ -74,11 +74,16 @@ public class AvroToPsql {
     };
 
     protected void run(AvroToPsqlOptions options) throws PropertyVetoException {
+        String projectId = options.getProject();
+        String bucketName = "";
+        String fileName = "";
+
         Pipeline pipeline = Pipeline.create(options);
 
         JdbcIO.DataSourceConfiguration config = JdbcIO.DataSourceConfiguration.create(ConnectionConfig.getConnectionConfig());
 
-        Schema schema = getAvroSchemaFromResource();
+//        Schema schema = new Schema.Parser().parse(DownloadGcpObject.downloadFileAsString(projectId, bucketName, fileName));
+        Schema schema = new Schema.Parser().parse(DownloadGcpObject.downloadFileAsString());
 
         pipeline.apply("Read Avro from DataStorage", AvroIO.readGenericRecords(schema)
                         .from(options.getInputPath()))

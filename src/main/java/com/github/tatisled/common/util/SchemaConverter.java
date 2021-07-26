@@ -40,7 +40,7 @@ public class SchemaConverter {
     }
 
     public static Schema getAvroSchemaFromGsp() {
-        return new Schema.Parser().parse(Objects.requireNonNull(DownloadGcpObject.downloadObject()));
+        return new Schema.Parser().parse(Objects.requireNonNull(DownloadGcpObject.downloadFileAsString()));
     }
 
     public static String getStringAvroSchemaFromResource() {

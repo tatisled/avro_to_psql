@@ -9,11 +9,11 @@ import java.nio.charset.StandardCharsets;
 
 public class DownloadGcpObject {
 
-    private static final String PROJECT_ID = "graphite-hook-314808";
-    private static final String BUCKET_NAME = "onboarding-bucket-1";
+    private static final String PROJECT_ID = "onboardingproject-319313";
+    private static final String BUCKET_NAME = "onboardingproject-bucket1";
     private static final String OBJECT_NAME = "schema.avsc";
 
-    public static String downloadObject() {
+    public static String downloadFileAsString() {
         // The ID of your GCP project
         // String projectId = "your-project-id";
 
@@ -41,5 +41,32 @@ public class DownloadGcpObject {
 //                        + bucketName
 //                        + " to "
 //                        + destFilePath);
+    }
+
+    /**
+     * Downloading file from GCP bucket as a sequence of bytes
+     *
+     * @param projectId project id
+     * @param bucketName bucket name
+     * @param fileName file name
+     * @return content of file in bytes
+     */
+    public static byte[] downloadFile(String projectId, String bucketName, String fileName) {
+        Storage storage = StorageOptions.newBuilder().setProjectId(projectId).build().getService();
+        Blob blob = storage.get(BlobId.of(bucketName, fileName));
+        return blob.getContent();
+    }
+
+    /**
+     * Downloading file from GCP bucket as a sequence of charsets (string)
+     *
+     * @param projectId project id
+     * @param bucketName bucket name
+     * @param fileName file name
+     * @return content of file as string
+     */
+    public static String downloadFileAsString(String projectId, String bucketName, String fileName) {
+        byte[] bytes = downloadFile(projectId, bucketName, fileName);
+        return new String(bytes, StandardCharsets.UTF_8);
     }
 }
