@@ -42,7 +42,7 @@ exports.invokeDataflowJob = async function (req, resp) {
         }
     }, null, function (err, response) {
         if (err) {
-            console.error("problem running dataflow template, error was: ", err);
+            console.error("Problem occurred while running dataflow template, error was: ", err);
             resp.status(400).send(err);
 
         }

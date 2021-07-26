@@ -32,7 +32,7 @@ exports.onGettingMessageCallHttp = pubsubMessage => {
     console.log(`   Complete data.parameters: ${data.parameters}`);
 
     const options = {
-        host: 'us-central1-graphite-hook-314808.cloudfunctions.net',
+        host: 'us-central1-onboardingproject-319313.cloudfunctions.net',
         // port: 8080,
         path: '/invokeDataflowJob',
         method: 'POST',
