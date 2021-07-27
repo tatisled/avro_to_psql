@@ -1,5 +1,5 @@
 {
-  "name": "cf_pubsub_psql_to_avro",
+  "name": "cf_listen_to_pubsub_call_http",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",

@@ -1,7 +1,7 @@
 package com.github.tatisled.phase3;
 
-import com.github.tatisled.phase3.udaf.CustomCount;
 import com.github.tatisled.common.util.SchemaConverter;
+import com.github.tatisled.phase3.udaf.CustomCount;
 import org.apache.avro.generic.GenericRecord;
 import org.apache.avro.util.Utf8;
 import org.apache.beam.runners.dataflow.options.DataflowPipelineOptions;
@@ -94,12 +94,14 @@ public class AvroToBQ {
     }
 
     protected void run(AvroToBqOptions options) {
+        String inputPath = options.getInputPath().isAccessible() ? options.getInputPath().get() : "";
+
         Pipeline pipeline = Pipeline.create(options);
 
         pipeline
                 .apply("Read Avro from DataStorage", AvroIO
                         .readGenericRecords(getAvroSchemaFromResource())
-                        .from(options.getInputPath())
+                        .from(inputPath)
                 )
                 .apply("Transform data to Row", ParDo.of(new RowParDo()))
                 .setRowSchema(SchemaConverter.getSchema(
@@ -130,18 +132,20 @@ public class AvroToBQ {
         PipelineResult pipelineResult = pipeline.run();
 
         // request the metric called "bq_row_counter" in namespace called "onboarding_project"
-        MetricQueryResults metrics = pipelineResult
-                .metrics()
-                .queryMetrics(
-                        MetricsFilter.builder()
-                                .addNameFilter(MetricNameFilter.named("onboarding_project", "bq_row_counter"))
-                                .build());
-
-        // print the metric value - there should be only one line because there is only one metric
-        // called "bq_row_counter" in the namespace called "onboarding_project"
-        for (MetricResult<Long> counter : metrics.getCounters()) {
-            System.out.println(counter.getName() + ":" + counter.getAttempted());
-        }
+        //MetricQueryResults metrics = pipelineResult
+        //        .metrics()
+        //        .queryMetrics(
+        //                MetricsFilter.builder()
+        //                        .addNameFilter(MetricNameFilter.named("onboarding_project", "bq_row_counter"))
+        //                        .build());
+//
+        //if (metrics != null) {
+        //    // print the metric value - there should be only one line because there is only one metric
+        //    // called "bq_row_counter" in the namespace called "onboarding_project"
+        //    for (MetricResult<Long> counter : metrics.getCounters()) {
+        //        System.out.println(counter.getName() + ":" + counter.getAttempted());
+        //    }
+        //}
     }
 
     public static void main(String[] args) {

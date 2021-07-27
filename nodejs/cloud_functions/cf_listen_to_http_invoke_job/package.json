@@ -1,5 +1,5 @@
 {
-  "name": "cf_http_psql_to_avro",
+  "name": "cf_listen_to_http_invoke_job",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",

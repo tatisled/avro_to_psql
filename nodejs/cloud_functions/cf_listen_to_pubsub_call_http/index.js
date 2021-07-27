@@ -48,17 +48,17 @@ exports.onGettingMessageCallHttp = pubsubMessage => {
         console.log(`statusCode: ${res.statusCode}`);
 
         res.on('data', d => {
-            console.log(`    Got response from psql_to_avro_function, response: `)
+            console.log(`    Got response from invokeDataflowJob, response: `)
             console.log(Buffer.from(d, 'base64').toString());
         });
     });
 
     req.on('error', error => {
-        console.log(`    Got error from psql_to_avro_function, error: `)
+        console.log(`    Got error from cf_listen_to_http_invoke_job, error: `)
         console.error(error);
     });
 
-    console.log(`   Calling psql_to_avro function by https...`);
+    console.log(`   Calling cf_listen_to_http_invoke_job function by https...`);
     req.write(data);
     req.end();
 };
